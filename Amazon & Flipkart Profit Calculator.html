@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Amazon & Flipkart Profit Calculator</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#f3f5f9;--card:#fff;--ink:#0f172a;--mut:#64748b;--line:#e2e8f0;--inp:#f8fafc;--amz:#e68900;--fk:#2874f0;--good:#0f9d58;--bad:#d93025;--soft:#eef2ff}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b1220;--card:#131c2e;--ink:#e8edf6;--mut:#94a3b8;--line:#243049;--inp:#0f1727;--amz:#ffab2e;--fk:#5b9bff;--good:#34c27a;--bad:#ff6b5f;--soft:#1a2540}}
+:root[data-theme="dark"]{--bg:#0b1220;--card:#131c2e;--ink:#e8edf6;--mut:#94a3b8;--line:#243049;--inp:#0f1727;--amz:#ffab2e;--fk:#5b9bff;--good:#34c27a;--bad:#ff6b5f;--soft:#1a2540}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*:before,*:after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:1040px;margin:0 auto;padding:16px 14px 40px}
+header{padding:8px 2px 14px}
+h1{font-size:22px;margin:0 0 4px;letter-spacing:-.3px}
+header p{margin:0;color:var(--mut);font-size:13.5px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.card h2{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--mut);margin:0 0 12px}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+@media(min-width:720px){.grid.g4{grid-template-columns:repeat(4,1fr)}.grid.g3{grid-template-columns:repeat(3,1fr)}}
+label{display:block;font-size:12px;color:var(--mut);margin-bottom:5px;font-weight:600}
+.f{position:relative}
+input[type=number],input[type=text]{width:100%;height:46px;border:1px solid var(--line);background:var(--inp);color:var(--ink);border-radius:11px;padding:0 12px;font-size:16px;outline:none}
+input:focus{border-color:var(--fk);box-shadow:0 0 0 3px color-mix(in srgb,var(--fk) 20%,transparent)}
+select{width:100%;height:46px;border:1px solid var(--line);background:var(--inp);color:var(--ink);border-radius:11px;padding:0 10px;font-size:14px}
+.pre input{padding-left:28px}.pre:before{content:"₹";position:absolute;left:12px;bottom:12px;color:var(--mut);font-size:15px;z-index:1}
+.chk{display:flex;gap:8px;align-items:center;font-size:13px;color:var(--mut);margin-top:12px}
+.chk input{width:18px;height:18px}
+.sum{display:grid;gap:12px}
+@media(min-width:720px){.sum{grid-template-columns:1fr 1fr}}
+.pc{border-radius:16px;padding:16px;border:1px solid var(--line);background:var(--card);position:relative;overflow:hidden}
+.pc:before{content:"";position:absolute;left:0;top:0;right:0;height:5px;background:var(--c)}
+.pc.a{--c:var(--amz)}.pc.k{--c:var(--fk)}
+.pc .nm{font-weight:700;font-size:15px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.badge{font-size:11px;background:var(--good);color:#fff;padding:3px 9px;border-radius:99px;font-weight:700;visibility:hidden}
+.pc.win .badge{visibility:visible}
+.big{font-size:30px;font-weight:800;margin:8px 0 2px;letter-spacing:-.5px}
+.pos{color:var(--good)}.neg{color:var(--bad)}
+.mini{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.mini div{background:var(--soft);border-radius:10px;padding:8px 6px;text-align:center}
+.mini b{display:block;font-size:14px}.mini span{font-size:11px;color:var(--mut)}
+.seg{display:inline-flex;background:var(--soft);border-radius:10px;padding:3px;margin-bottom:10px}
+.seg button{border:0;background:none;color:var(--mut);padding:8px 14px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer}
+.seg button.on{background:var(--card);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14px;min-width:300px}
+th,td{padding:9px 6px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+th:first-child,td:first-child{text-align:left;white-space:normal}
+th{font-size:12px;position:sticky;top:0}
+th.a{color:var(--amz)}th.k{color:var(--fk)}
+tr.sec td{background:var(--soft);font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--mut)}
+tr.tot td{font-weight:800;border-top:2px solid var(--line)}
+details{border:1px solid var(--line);border-radius:12px;padding:0 12px;margin-bottom:10px;background:var(--inp)}
+summary{cursor:pointer;padding:13px 0;font-weight:700;list-style:none;display:flex;justify-content:space-between;align-items:center}
+summary:after{content:"＋";color:var(--mut)}details[open] summary:after{content:"－"}
+details .grid{padding-bottom:14px}
+.btn{height:36px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:9px;padding:0 12px;font-size:12.5px;font-weight:600;cursor:pointer;margin:0 6px 12px 0}
+.note{font-size:12.5px;color:var(--mut);line-height:1.55}
+.note b{color:var(--ink)}
+.note ul{padding-left:18px;margin:6px 0}
+.warn{background:color-mix(in srgb,var(--amz) 14%,transparent);border:1px solid color-mix(in srgb,var(--amz) 40%,transparent);border-radius:12px;padding:12px;margin-bottom:14px;font-size:13px}
+.gst{display:grid;grid-template-columns:1fr 1fr;gap:8px 16px;font-size:14px}
+.gst div:nth-child(even){text-align:right;font-weight:700}
+@media(max-width:480px){.big{font-size:26px}.wrap{padding:12px 10px 32px}.card{padding:14px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<h1>Amazon & Flipkart Profit Calculator</h1>
+<p>Enter your product cost, selling price and quantity to compare net profit on both marketplaces.</p>
+</header>
+
+<div class="warn"><b>Check your fees before relying on results.</b> Marketplace fees change often and depend on category, price slab, seller tier and fulfilment type. Default fee values below match the example video (₹499 item). Open <b>Fee settings</b> and enter the exact rates from your Amazon Seller Central / Flipkart Seller Hub rate card.</div>
+
+<div class="card">
+<h2>Product details</h2>
+<div class="grid g4">
+<div class="f pre"><label for="cost">Purchase price / unit</label><input id="cost" type="number" inputmode="decimal" value="300" min="0"></div>
+<div class="f pre"><label for="sp">Selling price / unit</label><input id="sp" type="number" inputmode="decimal" value="499" min="0"></div>
+<div class="f"><label for="qty">Quantity (orders)</label><input id="qty" type="number" inputmode="numeric" value="100" min="1"></div>
+<div class="f"><label for="ret">Return rate %</label><input id="ret" type="number" inputmode="decimal" value="0" min="0" max="100"></div>
+<div class="f pre"><label for="pack">Packaging / unit</label><input id="pack" type="number" inputmode="decimal" value="8" min="0"></div>
+<div class="f pre"><label for="ads">Ads & other / order</label><input id="ads" type="number" inputmode="decimal" value="0" min="0"></div>
+<div class="f"><label for="pgst">Sale GST % (in price)</label><input id="pgst" type="number" inputmode="decimal" value="5"></div>
+<div class="f"><label for="pin">Purchase GST % (in cost)</label><input id="pin" type="number" inputmode="decimal" value="5"></div>
+</div>
+<label class="chk"><input type="checkbox" id="rest" checked> Returned products are resaleable (cost not lost)</label>
+</div>
+
+<div class="sum" id="sum"></div>
+
+<div class="card" style="margin-top:14px">
+<h2>Full breakdown</h2>
+<div class="seg"><button id="vu" class="on">Per unit</button><button id="vt">Total</button></div>
+<div class="tw"><table id="tbl"></table></div>
+</div>
+
+<div class="card">
+<h2>Fee settings</h2>
+<details>
+<summary style="color:var(--amz)">Amazon fees</summary>
+<div class="f" style="padding-bottom:12px"><label for="apre">Quick preset: fashion jewellery under ₹1,000, Easy Ship, up to 500 g (Oct 2026)</label>
+<select id="apre"><option value="">Custom / video example</option><option value="l">Local: 0% referral, closing ₹26, weight ₹40</option><option value="r">Regional: 0% referral, closing ₹26, weight ₹54</option><option value="n">National: 0% referral, closing ₹26, weight ₹65</option></select></div>
+<div class="grid g3">
+<div class="f"><label>Referral fee % <small>(commission)</small></label><input id="a_c" type="number" inputmode="decimal" value="22.5"></div>
+<div class="f pre"><label>Closing fee</label><input id="a_f" type="number" inputmode="decimal" value="9"></div>
+<div class="f pre"><label>Shipping / weight handling</label><input id="a_s" type="number" inputmode="decimal" value="81"></div>
+<div class="f pre"><label>Reverse shipping (per return)</label><input id="a_r" type="number" inputmode="decimal" value="0"></div>
+<div class="f"><label>Collection fee %</label><input id="a_col" type="number" inputmode="decimal" value="0"></div>
+</div>
+</details>
+<details>
+<summary style="color:var(--fk)">Flipkart fees</summary>
+<div class="grid g3">
+<div class="f"><label>Commission %</label><input id="k_c" type="number" inputmode="decimal" value="15"></div>
+<div class="f pre"><label>Fixed fee</label><input id="k_f" type="number" inputmode="decimal" value="69"></div>
+<div class="f pre"><label>Shipping fee</label><input id="k_s" type="number" inputmode="decimal" value="16"></div>
+<div class="f pre"><label>Reverse shipping (per return)</label><input id="k_r" type="number" inputmode="decimal" value="0"></div>
+<div class="f"><label>Collection fee %</label><input id="k_col" type="number" inputmode="decimal" value="0"></div>
+</div>
+</details>
+<div class="grid"><div class="f"><label>GST on marketplace fees %</label><input id="fg" type="number" inputmode="decimal" value="18"></div></div>
+<div style="margin-top:14px">
+<button class="btn" id="zero">Set commission 0% (zero-commission eligible items)</button>
+<button class="btn" id="reset">Reset fees to video example</button>
+</div>
+<div class="note"><b>What's changed in 2026 (as reported by Amazon and seller-fee guides):</b>
+<ul>
+<li><b>Amazon:</b> from 16 Mar 2026, 0% referral fee on eligible categories priced up to ₹1,000; closing and weight-handling fees still apply. Closing fees rose by ₹1 (up to ₹500) and ₹3 (above) from 7 Sep 2026. Closing fee depends on Easy Ship / FBA / Self-ship.</li>
+<li><b>Flipkart:</b> zero commission on eligible products (many under ₹1,000, fashion), but fixed fee (by seller tier and price slab), collection fee (prepaid vs COD) and shipping by weight and zone still apply. Free local and zonal shipping under 500 g.</li>
+<li>The video's 22.5% Amazon / 15% Flipkart commission and ₹69 fixed fee are category-specific and may be out of date for your product.</li>
+</ul>
+Results are estimates; TCS/TDS and penalties are not included.</div>
+</div>
+
+<div class="card">
+<h2>GST estimate</h2>
+<div class="gst" id="gstbox"></div>
+</div>
+</div>
+
+<script>
+var $=function(i){return document.getElementById(i)};
+var N=function(i){return parseFloat($(i).value)||0};
+var INR=function(v){var s=v<0?"-":"";v=Math.abs(v);return s+"₹"+v.toLocaleString("en-IN",{minimumFractionDigits:2,maximumFractionDigits:2})};
+var view="u";
+var DEF={a_c:22.5,a_f:9,a_s:81,a_r:0,a_col:0,k_c:15,k_f:69,k_s:16,k_r:0,k_col:0};
+function calc(p){
+  var Q=Math.max(N("qty"),1),sp=N("sp"),cost=N("cost"),R=Q*Math.min(N("ret"),100)/100,D=Q-R;
+  var fg=N("fg")/100,pg=N("pgst"),pin=N("pin");
+  var comm=N(p+"_c")/100*sp*D,fixed=N(p+"_f")*D,coll=N(p+"_col")/100*sp*D;
+  var ship=N(p+"_s")*Q,rev=N(p+"_r")*R;
+  var fees=comm+fixed+coll+ship+rev,gst=fees*fg;
+  var sales=sp*D,settle=sales-fees-gst;
+  var cogs=cost*($("rest").checked?D:Q),pack=N("pack")*Q,ads=N("ads")*Q;
+  var profit=settle-cogs-pack-ads;
+  var outG=sales*pg/(100+pg),itc=gst+cogs*pin/(100+pin),net=outG-itc;
+  var tp=profit-net;
+  return {Q:Q,R:R,D:D,sales:sales,comm:comm,fixed:fixed,coll:coll,ship:ship+rev,fees:fees,gst:gst,settle:settle,cogs:cogs,pack:pack,ads:ads,profit:profit,outG:outG,itc:itc,net:net,tp:tp,
+    margin:sales?tp/sales*100:0,roi:(cogs+pack+ads)?tp/(cogs+pack+ads)*100:0,deduct:fees+gst};
+}
+function render(){
+  var A=calc("a"),K=calc("k"),Q=A.Q,sp=N("sp");
+  var div=view==="u"?Q:1;
+  var cls=function(v){return v>=0?"pos":"neg"};
+  var win=A.tp===K.tp?"":(A.tp>K.tp?"a":"k");
+  function card(c,nm,r,w){return '<div class="pc '+c+(win===c?" win":"")+'"><div class="nm">'+nm+'<span class="badge">Best profit</span></div>'
+   +'<div class="big '+cls(r.tp)+'">'+INR(r.tp/Q)+'</div><div class="note">net profit per unit after GST &middot; total '+INR(r.tp)+'</div>'
+   +'<div class="mini"><div><b>'+INR(r.settle/Q)+'</b><span>Bank settlement</span></div><div><b class="'+cls(r.margin)+'">'+r.margin.toFixed(1)+'%</b><span>Margin</span></div><div><b class="'+cls(r.roi)+'">'+r.roi.toFixed(1)+'%</b><span>ROI</span></div></div></div>'}
+  $("sum").innerHTML=card("a","Amazon",A)+card("k","Flipkart",K);
+  var rows=[["sec","Revenue"],["","Selling price",sp,sp,1],["","Sales value (delivered)",A.sales,K.sales],
+   ["sec","Marketplace deductions"],["","Commission",A.comm,K.comm],["","Closing / fixed fee",A.fixed,K.fixed],["","Collection fee",A.coll,K.coll],["","Shipping (fwd + reverse)",A.ship,K.ship],["","GST on fees",A.gst,K.gst],["tot","Total deductions",A.deduct,K.deduct],["tot","Bank settlement",A.settle,K.settle],
+   ["sec","Your costs"],["","Purchase cost",A.cogs,K.cogs],["","Packaging",A.pack,K.pack],["","Ads & other",A.ads,K.ads],["","Profit before GST payable",A.profit,K.profit],["","Net GST payable",A.net,K.net],["tot","Net profit",A.tp,K.tp]];
+  var h='<tr><th></th><th class="a">Amazon</th><th class="k">Flipkart</th></tr>';
+  rows.forEach(function(r){
+    if(r[0]==="sec"){h+='<tr class="sec"><td colspan="3">'+r[1]+'</td></tr>';return}
+    var f=r[4]?1:div;
+    var a=r[2]/f,k=r[3]/f,pn=r[1]==="Net profit"||r[1]==="Profit before GST payable";
+    h+='<tr class="'+r[0]+'"><td>'+r[1]+'</td><td class="'+(pn?cls(a):"")+'">'+INR(a)+'</td><td class="'+(pn?cls(k):"")+'">'+INR(k)+'</td></tr>';
+  });
+  h+='<tr><td>Margin on sales</td><td>'+A.margin.toFixed(2)+'%</td><td>'+K.margin.toFixed(2)+'%</td></tr>';
+  h+='<tr><td>ROI on investment</td><td>'+A.roi.toFixed(2)+'%</td><td>'+K.roi.toFixed(2)+'%</td></tr>';
+  $("tbl").innerHTML=h;
+  $("gstbox").innerHTML='<div></div><div style="color:var(--mut);font-weight:600">Amazon &nbsp;|&nbsp; Flipkart</div>'
+   +[["GST collected from customer","outG"],["Credit: GST on fees","gst"],["Credit: GST on purchase",null],["Net GST to pay","net"]].map(function(x){
+     if(x[1]===null){var pa=A.itc-A.gst,pk=K.itc-K.gst;return '<div>'+x[0]+'</div><div>'+INR(pa)+' | '+INR(pk)+'</div>'}
+     return '<div>'+x[0]+'</div><div>'+INR(A[x[1]])+' | '+INR(K[x[1]])+'</div>'}).join("");
+}
+document.querySelectorAll("input").forEach(function(e){e.addEventListener("input",render);e.addEventListener("change",render)});
+$("vu").onclick=function(){view="u";$("vu").className="on";$("vt").className="";render()};
+$("vt").onclick=function(){view="t";$("vt").className="on";$("vu").className="";render()};
+$("apre").onchange=function(){var z={l:40,r:54,n:65}[this.value];if(z===undefined)return;$("a_c").value=0;$("a_f").value=26;$("a_s").value=z;$("a_r").value=0;$("a_col").value=0;render()};
+$("zero").onclick=function(){$("a_c").value=0;$("k_c").value=0;render()};
+$("reset").onclick=function(){for(var k in DEF)$(k).value=DEF[k];render()};
+render();
+</script>
+</body>
+</html>
